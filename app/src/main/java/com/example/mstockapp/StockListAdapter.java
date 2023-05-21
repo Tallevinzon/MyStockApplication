@@ -1,14 +1,22 @@
 package com.example.mstockapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,10 +24,24 @@ import java.util.List;
 public class StockListAdapter extends ArrayAdapter<Stock> {
     private Context mContext;
     int mResource;
-    public StockListAdapter(Context context, int resource, ArrayList<Stock> objects) {
-        super(context, resource, objects);
+    List<Stock> stockList;
+
+    private AdapterCallback callback;
+
+    // Define the interface
+    public interface AdapterCallback {
+        void onAdapterUpdated();
+    }
+
+    // Set the callback
+    public void setCallback(AdapterCallback callback) {
+        this.callback = callback;
+    }
+    public StockListAdapter(Context context, int resource, ArrayList<Stock> Stocks) {
+        super(context, resource, Stocks);
         mContext = context;
         mResource = resource;
+        stockList = Stocks;
     }
 
     @NonNull
@@ -38,10 +60,54 @@ public class StockListAdapter extends ArrayAdapter<Stock> {
         TextView tvPrice = (TextView) convertView.findViewById(R.id.textView2);
         TextView tvDailyChange = (TextView) convertView.findViewById(R.id.textView3);
 
+        Stock positionToRemove = stockList.get(position);
+
+        Button button = convertView.findViewById(R.id.removeBtn);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Handle button click for this item
+                removeItem(positionToRemove); // Call a method to remove the item from the list
+            }
+        });
+
         tvSymbol.setText(symbol);
         tvPrice.setText(price);
         tvDailyChange.setText(dailyChange);
         return convertView;
+    }
+
+    private void removeItem(Stock stock) {
+        // Remove the stock item from the list
+        stockList.remove(stock);
+        if (callback != null) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String json = gson.toJson(stockList);
+            saveToLocalFile(json);
+            callback.onAdapterUpdated();
+        }
+//        notifyDataSetChanged(); // Notify the adapter that the data has changed
+        Log.e("Yep: ","Item has been removed");
+    }
+
+    public void saveToLocalFile(String json){
+        Context context = mContext.getApplicationContext();
+        File filesDir = context.getFilesDir();
+        Log.d("File content", String.valueOf(filesDir));
+        String fileName = "stockData.json";
+        File file = new File(filesDir, fileName);
+
+        try{
+            FileWriter writer = new FileWriter(file);
+            writer.write(json);
+            writer.flush();
+            writer.close();
+            // File saved successfully
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Error occurred while saving the file
+        }
     }
 
     @Override

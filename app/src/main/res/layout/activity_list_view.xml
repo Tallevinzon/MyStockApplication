@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ListView">
+    tools:context=".LineChartGraph">
     
     <TextView
         android:layout_width="match_parent"
@@ -44,6 +44,23 @@
             android:id="@+id/textView3"
             android:layout_weight="33.3"
             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="33.3"
+        android:orientation="vertical">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="33.3"
+            android:text="remove"
+            android:textSize="9.5dp"
+            android:id="@+id/removeBtn"
+            android:orientation="vertical" />
+
     </LinearLayout>
 
 

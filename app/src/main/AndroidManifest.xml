@@ -15,6 +15,9 @@
         android:theme="@style/Theme.MStockApp"
         tools:targetApi="31">
         <activity
+            android:name=".LineChartGraph"
+            android:exported="false" />
+        <activity
             android:name=".ListView"
             android:exported="false" />
         <activity
