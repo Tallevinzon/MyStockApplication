@@ -112,17 +112,6 @@ public class MainActivity extends AppCompatActivity implements StockListAdapter.
             Stocks.add(stock);
             adapter.notifyDataSetChanged();
         }
-
-
-
-        stockList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MainActivity.this, LineChartGraph.class);
-                intent.putExtra("key", Stocks.get(i).symbol);
-                startActivity(intent);
-            }
-        });
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.mstockapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +70,20 @@ public class StockListAdapter extends ArrayAdapter<Stock> {
             public void onClick(View view) {
                 // Handle button click for this item
                 removeItem(positionToRemove); // Call a method to remove the item from the list
+            }
+        });
+
+        // Set the click listener for the parent ListView item
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("ArrayAdapter","print works");
+                // Start a new activity from the MainActivity
+                Context context = parent.getContext();
+                Intent intent = new Intent(context, LineChartGraph.class);
+                Log.e("Position:",stockList.get(position).symbol);
+                intent.putExtra("key", stockList.get(position).symbol);
+                context.startActivity(intent);
             }
         });
 
