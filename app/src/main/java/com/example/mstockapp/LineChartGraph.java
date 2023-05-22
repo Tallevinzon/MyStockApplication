@@ -3,6 +3,7 @@ package com.example.mstockapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +39,7 @@ import okhttp3.Response;
 public class LineChartGraph extends AppCompatActivity {
 
     private LineChart chart;
+    String receivedKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +51,11 @@ public class LineChartGraph extends AppCompatActivity {
         chart.getDescription().setEnabled(false);
 
         // Retrieve the key from the intent
-        String receivedKey = getIntent().getStringExtra("key");
+        receivedKey = getIntent().getStringExtra("key");
 
         Log.d("Received Key", receivedKey);
         // Make API request and plot the graph
-        fetchStockData(receivedKey);
+        fetchStockData(receivedKey,"1m");
 
         Button backButton = (Button) findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -61,32 +64,100 @@ public class LineChartGraph extends AppCompatActivity {
                 finish();
             }
         });
+
+        Button oneDayButton = (Button) findViewById(R.id.oneDayBtn);
+        oneDayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"1d");
+            }
+        });
+
+        Button fiveDaysButton = (Button) findViewById(R.id.fiveDaysBtn);
+        fiveDaysButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"5d");
+            }
+        });
+        Button oneMonthButton = (Button) findViewById(R.id.oneMonthBtn);
+        oneMonthButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"1m");
+            }
+        });
+
+        Button sixMonthButton = (Button) findViewById(R.id.sixMonthBtn);
+        sixMonthButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"6m");
+            }
+        });
+
+        Button ytdButton = (Button) findViewById(R.id.YTDBtn);
+        ytdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"ytd");
+            }
+        });
+
+
+        Button oneYearButton = (Button) findViewById(R.id.oneYearBtn);
+        oneYearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"1y");
+            }
+        });
+
+        Button fiveYearsButton = (Button) findViewById(R.id.fiveYearsBtn);
+        fiveYearsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"5y");
+            }
+        });
+
+        Button maxButton = (Button) findViewById(R.id.maxBtn);
+        maxButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchStockData(receivedKey,"max");
+            }
+        });
+
     }
 
-    private void fetchStockData(String symbol) {
-        String apiKey = "JSIFUJ8C1BIJZAH4";
-        String function = "TIME_SERIES_DAILY";
-        String url = "https://www.alphavantage.co/query?function=" + function + "&symbol=" + symbol + "&apikey=" + apiKey;
-
-        // Make an API request to Alpha Vantage
+    private void fetchStockData(String symbol,String periodTime) {
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(url).build();
+        String url = "https://cloud.iexapis.com/stable/stock/{symbol}/chart/"+ periodTime + "?token=sk_ae7d7b54f1eb44268f556d14736d265f";
+
+        Request request = new Request.Builder()
+                .url(url.replace("{symbol}", receivedKey))
+                .build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e("APIRequest", "Failed to fetch stock data: " + e.getMessage());
+                e.printStackTrace();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseData = response.body().string();
-                    List<Entry> entries = parseStockData(responseData);
-                    runOnUiThread(() -> plotStockGraph(entries));
-                    Log.e("APIResponse", "API request success");
-                } else {
-                    Log.e("APIResponse", "API request failed with response code: " + response.code());
+
+                    // Parse the response data and extract the required values
+
+                    // Update the UI on the main thread
+                    runOnUiThread(() -> {
+                        // Plot the stock data on the line chart
+                        List<Entry> entries = parseStockData(responseData);
+                        plotStockGraph(entries, chart);
+                    });
                 }
             }
         });
@@ -96,49 +167,34 @@ public class LineChartGraph extends AppCompatActivity {
         List<Entry> entries = new ArrayList<>();
 
         try {
-            JSONObject jsonObject = new JSONObject(responseData);
-            JSONObject timeSeries = jsonObject.getJSONObject("Time Series (Daily)");
+            JSONArray jsonArray = new JSONArray(responseData);
 
-            Iterator<String> keys = timeSeries.keys();
-            while (keys.hasNext()) {
-                String date = keys.next();
-                JSONObject data = timeSeries.getJSONObject(date);
-                float closingPrice = data.getString("4. close") != null ? Float.parseFloat(data.getString("4. close")) : 0;
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonEntry = jsonArray.getJSONObject(i);
+                String date = jsonEntry.getString("date");
+                double closePrice = jsonEntry.getDouble("close");
 
-                entries.add(new Entry(Float.parseFloat(date), closingPrice));
+                entries.add(new Entry(i, (float) closePrice));
             }
-
-            Collections.sort(entries, new EntryXComparator());
-
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
         return entries;
     }
 
-    private void plotStockGraph(List<Entry> entries) {
+    private void plotStockGraph(List<Entry> entries, LineChart lineChart) {
         LineDataSet dataSet = new LineDataSet(entries, "Stock Data");
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        // Customize the appearance of the line chart
+        // You can set various properties like colors, labels, axis, etc.
+        // For example:
+        dataSet.setColor(Color.BLUE);
+        dataSet.setCircleColor(Color.BLUE);
         dataSet.setDrawValues(false);
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
-        List<ILineDataSet> dataSets = new ArrayList<>();
-        dataSets.add(dataSet);
-
-        LineData lineData = new LineData(dataSets);
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-
-        YAxis yAxis = chart.getAxisLeft();
-        yAxis.setGranularity(1f);
-
-        Description description = new Description();
-        description.setText("Stock Prices");
-        chart.setDescription(description);
-
-        chart.setData(lineData);
-        chart.invalidate();
+        lineChart.invalidate(); // Refresh the chart
     }
 }

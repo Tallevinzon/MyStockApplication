@@ -15,16 +15,100 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9"/>
+        app:layout_constraintVertical_bias="0.95"/>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/line_chart"
-        android:layout_width="283dp"
-        android:layout_height="477dp"
+        android:layout_width="393dp"
+        android:layout_height="493dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.424" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="33.3"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.01"
+        >
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="33.3"
+            android:orientation="horizontal"
+            android:text="1D"
+            android:id="@+id/oneDayBtn"
+            android:textSize="9.5dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="33.3"
+            android:orientation="horizontal"
+            android:text="5D"
+            android:id="@+id/fiveDaysBtn"
+            android:textSize="9.5dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="33.3"
+            android:orientation="horizontal"
+            android:text="1M"
+            android:id="@+id/oneMonthBtn"
+            android:textSize="9.5dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="33.3"
+            android:orientation="horizontal"
+            android:text="6M"
+            android:id="@+id/sixMonthBtn"
+            android:textSize="9.5dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="32.6"
+            android:orientation="horizontal"
+            android:text="YTD"
+            android:id="@+id/YTDBtn"
+            android:textSize="9.5dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="33.3"
+            android:orientation="horizontal"
+            android:text="1Y"
+            android:id="@+id/oneYearBtn"
+            android:textSize="9.5dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="33.3"
+            android:orientation="horizontal"
+            android:text="5Y"
+            android:id="@+id/fiveYearsBtn"
+            android:textSize="9.5dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="32.6"
+            android:orientation="horizontal"
+            android:text="max"
+            android:id="@+id/maxBtn"
+            android:textSize="9.5dp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
