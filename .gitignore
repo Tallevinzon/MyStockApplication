@@ -13,3 +13,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+.idea/misc.xml
+.vscode/
+app/bin/
+/.idea/misc.xml
+build.gradle
+gradle.properties
+gradle/wrapper/gradle-wrapper.properties
