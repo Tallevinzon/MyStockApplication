@@ -16,7 +16,7 @@ import okhttp3.Response;
 
 public class StockDataRetriever {
     private static final String TAG = StockDataRetriever.class.getSimpleName();
-    private static final String BASE_URL = "https://cloud.iexapis.com/stable/stock/%s/quote?token=sk_ae7d7b54f1eb44268f556d14736d265f";
+    private static final String BASE_URL = "https://cloud.iexapis.com/stable/stock/%s/quote?token=pk_110958603c8343b89e1a820cc9df8dbe";
 
     public interface StockDataListener {
         void onStockDataReceived(String symbol, double latestPrice, double dailyChange);

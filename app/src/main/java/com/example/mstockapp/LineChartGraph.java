@@ -133,7 +133,7 @@ public class LineChartGraph extends AppCompatActivity {
 
     private void fetchStockData(String symbol,String periodTime) {
         OkHttpClient client = new OkHttpClient();
-        String url = "https://cloud.iexapis.com/stable/stock/{symbol}/chart/"+ periodTime + "?token=sk_ae7d7b54f1eb44268f556d14736d265f";
+        String url = "https://cloud.iexapis.com/stable/stock/{symbol}/chart/"+ periodTime + "?token=pk_110958603c8343b89e1a820cc9df8dbe";
 
         Request request = new Request.Builder()
                 .url(url.replace("{symbol}", receivedKey))

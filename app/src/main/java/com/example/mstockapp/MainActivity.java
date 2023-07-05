@@ -45,10 +45,10 @@ public class MainActivity extends AppCompatActivity implements StockListAdapter.
 
     private static final String TAG = "MainActivity";
     EditText symbolTxtInput;
-    ArrayList<Stock> Stocks = new ArrayList<Stock>();
-    ArrayList<Stock> refreshedArrayStocks = new ArrayList<Stock>();
+    ArrayList<Stock> Stocks = new ArrayList<>();
+    ArrayList<Stock> refreshedArrayStocks = new ArrayList<>();
     ListView stockList;
-    StockListAdapter adapter;
+    StockListAdapterDecorator adapter;
     String symbol;
     String price;
     String dailyChange;
@@ -57,15 +57,18 @@ public class MainActivity extends AppCompatActivity implements StockListAdapter.
     Handler handler;
     Runnable runnable;
     boolean needListRefresh;
-
-
+    private FileWriterSingleton fileWriterSingleton;
 
     private StockDataRetriever.StockDataListener stockDataListener = new StockDataRetriever.StockDataListener() {
         @Override
         public void onStockDataReceived(String symbol, double latestPrice, double dailyChange) {
             // Handle the received stock data
             Log.e(TAG, "Symbol: " + symbol + ", Latest Price: " + latestPrice + ", Daily Change: " + dailyChange);
-            Stock stock = new Stock(symbol,String.valueOf(latestPrice),String.valueOf(dailyChange));
+            Stock stock = new Stock.StockBuilder()
+                    .setSymbol(symbol)
+                    .setPrice(String.valueOf(latestPrice))
+                    .setDailyChange(String.valueOf(dailyChange))
+                    .build();
             runOnUiThread(() -> updateStockList(stock));
         }
 
@@ -83,9 +86,11 @@ public class MainActivity extends AppCompatActivity implements StockListAdapter.
         Log.d(TAG, "onCreate: Started.");
         symbolTxtInput = (EditText) findViewById(R.id.symbolTxtInput);
         stockList = (ListView) findViewById(R.id.StockList);
-        adapter = new StockListAdapter(this, R.layout.activity_list_view, Stocks);
+        adapter = new StockListAdapterDecorator(this, R.layout.activity_list_view, Stocks);
+        adapter.setCallback(this);
         stockList.setAdapter(adapter);
-        adapter.setCallback((StockListAdapter.AdapterCallback) this);
+        fileWriterSingleton = FileWriterSingleton.getInstance();
+        fileWriterSingleton.setFile(new File(getFilesDir(), "stockData.json"));
 
 
         try {
@@ -111,12 +116,13 @@ public class MainActivity extends AppCompatActivity implements StockListAdapter.
         Stock[] stocks = gson.fromJson(jsonContent, Stock[].class);
 
         onStartUpFlag = true;
+        if (stocks != null){
         for (Stock stock : stocks) {
             // Process each stock object
             StockDataRetriever.getStockData(stock.getSymbol(), stockDataListener);
             Stocks.add(stock);
             adapter.notifyDataSetChanged();
-        }
+        }}
 
 
         // Initialize the Handler
@@ -152,7 +158,11 @@ public class MainActivity extends AppCompatActivity implements StockListAdapter.
                 public void onStockDataReceived(String symbol, double latestPrice, double dailyChange) {
                     // Handle the received stock data
                     Log.e(TAG, "Symbol: " + symbol + ", Latest Price: " + latestPrice + ", Daily Change: " + dailyChange);
-                    Stock refreshedStock = new Stock(symbol, String.valueOf(latestPrice), String.valueOf(dailyChange));
+                    Stock refreshedStock = new Stock.StockBuilder()
+                            .setSymbol(symbol)
+                            .setPrice(String.valueOf(latestPrice))
+                            .setDailyChange(String.valueOf(dailyChange))
+                            .build();;
                     refreshedArrayStocks.add(refreshedStock);
 
                     if (refreshedArrayStocks.size() == Stocks.size()) {
@@ -209,21 +219,6 @@ public class MainActivity extends AppCompatActivity implements StockListAdapter.
     }
 
     public void saveToLocalFile(String json){
-        Context context = getApplicationContext();
-        File filesDir = context.getFilesDir();
-        Log.d("File content", String.valueOf(filesDir));
-        String fileName = "stockData.json";
-        File file = new File(filesDir, fileName);
-
-        try{
-            FileWriter writer = new FileWriter(file);
-            writer.write(json);
-            writer.flush();
-            writer.close();
-            // File saved successfully
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Error occurred while saving the file
-        }
+        fileWriterSingleton.writeToFile(json);
     }
 }

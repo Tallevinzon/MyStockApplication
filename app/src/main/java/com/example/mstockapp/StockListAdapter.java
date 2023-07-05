@@ -52,7 +52,12 @@ public class StockListAdapter extends ArrayAdapter<Stock> {
         String price = getItem(position).getPrice();
         String dailyChange = getItem(position).getDailyChange();
 
-        Stock stock = new Stock(symbol, price, dailyChange);
+        Stock stock = new Stock.StockBuilder()
+                .setSymbol(symbol)
+                .setPrice(price)
+                .setDailyChange(dailyChange)
+                .build();
+
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         convertView = inflater.inflate(mResource, parent, false);
@@ -81,8 +86,8 @@ public class StockListAdapter extends ArrayAdapter<Stock> {
                 // Start a new activity from the MainActivity
                 Context context = parent.getContext();
                 Intent intent = new Intent(context, LineChartGraph.class);
-                Log.e("Position:",stockList.get(position).symbol);
-                intent.putExtra("key", stockList.get(position).symbol);
+                Log.e("Position:", stockList.get(position).getSymbol());
+                intent.putExtra("key", stockList.get(position).getSymbol());
                 context.startActivity(intent);
             }
         });
